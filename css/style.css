@@ -1,0 +1,22 @@
+body {
+	font-family: Roboto;
+}
+
+.wrapper {
+	max-width: 500px;
+	margin: auto;
+	padding: 1000px 0;
+}
+
+.info-popup-wrapper {
+	background: hsla(0, 0%, 90%, 1);
+    padding: 10px;
+	font-size: 15px;
+    border-radius: 2px;
+    max-width: 250px;
+    opacity: 0;
+}
+
+.info-popup-wrapper.active {
+	opacity: 1;
+}

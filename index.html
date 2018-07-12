@@ -5,12 +5,30 @@
 	<title>Document</title>
 	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
 	<link rel="stylesheet" href="css/style.css">
-	
+	<link rel="stylesheet" href="result/infopopup.theme.css">
 	<!-- <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script> -->
 </head>
 <body>
 	<div class="wrapper">
-		<p data-popup data-content="Attention! its important information!">attention</p>
+
+		<p id="attention_1" class="attention" 
+			data-infopopup
+			data-side="bottom"
+			data-type="click"
+			data-scroll-sense
+			data-close-button
+			data-content="Attention! its important information 1!"
+		>attention 1</p>
+
+		<p id="attention_2" class="attention" 
+			data-infopopup
+			data-side="bottom"
+			data-type="click"
+			data-scroll-sense
+			data-close-button
+			data-content="Attention! its important information 2!"
+		>attention 2</p>
+
 	</div>
 	<script src="result/infopopup.dev.js"></script>
 	<script src="js/common.js"></script>

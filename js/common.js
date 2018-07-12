@@ -1,4 +1,4 @@
-var popup = new InfoPopup("[data-popup]", {
+var popup = infoPopup("[data-popup]", {
 	type        : "click",
 	closeButton : true,
 	closeText   : "close",
@@ -8,4 +8,6 @@ var popup = new InfoPopup("[data-popup]", {
 	}
 });
 
-popup.show();
+infoPopup.getById("attention_2").setSide("top");
+
+// infoPopup.getById("attention_2").destroy();

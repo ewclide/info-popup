@@ -1,39 +1,32 @@
+import { API } from './api';
 import { InfoPopup } from './popup';
 
-class Output
+API.setMethods([
+	"show",
+	"hide",
+	"toggle",
+	"setSide",
+	"setAlign",
+	"destroy"
+]);
+
+function build(query, settings)
 {
-	constructor(query, settings)
-	{
-		var self = this;
+	var list = [];
 
-		this.list = [];
+	document.querySelectorAll(query).forEach((element) =>{
+		var popup = new InfoPopup(element, settings);
+		list.push(popup.id);
+	});
 
-		document.querySelectorAll(query).forEach((element) => {
-			this.list.push(new InfoPopup(element, settings));
-		});
-	}
-
-	show(fast)
-	{
-		this.list.forEach( item => item.show(fast) );
-	}
-
-	hide(fast)
-	{
-		this.list.forEach( item => item.hide(fast) );
-	}
-
-	toggle(fast)
-	{
-		this.list.forEach( item => item.toggle(fast) );
-	}
-
-	getElementBy(query)
-	{
-
-	}
+	return API.output(list)
 }
 
-window.InfoPopup = Output;
+build.getById = function(id)
+{
+	return API.output(id)
+}
 
-var out = new Output("[data-info-popup]");
+window.infoPopup = build;
+
+build("[data-infopopup]");

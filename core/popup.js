@@ -1,4 +1,8 @@
 import * as func from './functions';
+import {API} from './api';
+
+var sides  = ["top", "bottom", "left", "right"],
+	aligns = ["begin", "middle", "end"];
 
 var defaults = {
     type        : "hover",
@@ -11,7 +15,7 @@ var defaults = {
     hideDelay   : 0,
     hideOnOver  : false,
     closeButton : false,
-    closeText   : "x",
+    closeText   : "",
     scrollSense : false,
     className   : null,
     onShow      : null,
@@ -38,6 +42,9 @@ export class InfoPopup
 	{
 		this.target = target;
 
+		// add to API
+		this.id = API.add(this, target.id);
+
 		func.getSettings(settings, defaults, attributes, target);
 
 		this.speed     = settings.speed;
@@ -45,29 +52,38 @@ export class InfoPopup
 		this.align     = settings.align;
 		this.showDelay = settings.showDelay;
 		this.hideDelay = settings.hideDelay;
-		this.active      = false;
+		this.active    = false;
 
 		this._create(settings);
 		this._listenEvents(settings);
+
+		this.setSide(settings.side);
+		this.setAlign(settings.align);
 
 		this.onShow  = func.getCallBack(settings.onShow);
 		this.onHide  = func.getCallBack(settings.onHide);
 		this.onReady = func.getCallBack(settings.onReady);
 
-		if (this.onReady) this.onReady();
+		if (this.onReady)
+			this.onReady(API.output(this.id));
 	}
 
 	_create(settings)
 	{
 		var self = this;
 
-		this.wrapper = func.createElement("div", "info-popup-wrapper");
-		this.wrapper.innerHTML = settings.content;
+		this.wrapper = func.createElement(
+			"div",
+			"info-popup",
+			{
+				display    : "none",
+				position   : "fixed",
+				transition : settings.speed + "ms, top 0ms, left 0ms",
+				zIndex     : settings.zIndex,
+			}
+		);
 
-		this.wrapper.style.display = "none";
-		this.wrapper.style.position = "fixed";
-		this.wrapper.style.transition = settings.speed + "ms, top 0ms, left 0ms";
-		this.wrapper.style.zIndex = settings.zIndex;
+		this.wrapper.innerHTML = settings.content;
 
 		if (settings.className)
 			this.wrapper.classList.add(settings.className);
@@ -81,11 +97,12 @@ export class InfoPopup
 
 		document.body.appendChild(this.wrapper);
 	}
+
 	_listenEvents(settings)
 	{
 		var self = this;
 
-		if (settings.type == "hover")
+		if (settings.type == "hover" && !func.isTouch())
 		{
 			this.target.addEventListener("mouseover", function(){
 				self.show();
@@ -231,6 +248,33 @@ export class InfoPopup
 			this.target.classList.remove("active");
 
 			if (this.onHide) this.onHide();
+		}
+	}
+
+	destroy()
+	{
+		API.remove(this.id);
+		document.body.removeChild(this.wrapper);
+		delete this;
+	}
+
+	setSide(side)
+	{
+		if (sides.includes(side))
+		{
+			this.wrapper.classList.remove(this.side);
+			this.side = side;
+			this.wrapper.classList.add(side);
+		}
+	}
+
+	setAlign(align)
+	{
+		if (aligns.includes(align))
+		{
+			this.wrapper.classList.remove(this.align);
+			this.align = align;
+			this.wrapper.classList.add(align);
 		}
 	}
 }

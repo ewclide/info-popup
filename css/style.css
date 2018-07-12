@@ -8,7 +8,16 @@ body {
 	padding: 1000px 0;
 }
 
-.info-popup-wrapper {
+.attention {
+    background: hsla(0, 0%, 96%, 1);
+    margin: 5px 0;
+    padding: 25px;
+    border-left: 4px solid #5cb3ff;
+    font-size: 18px;
+    font-weight: lighter;
+}
+
+.info-popup {
 	background: hsla(0, 0%, 90%, 1);
     padding: 10px;
 	font-size: 15px;
@@ -17,6 +26,6 @@ body {
     opacity: 0;
 }
 
-.info-popup-wrapper.active {
+.info-popup.active {
 	opacity: 1;
 }

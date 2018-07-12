@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,62 +70,114 @@
 "use strict";
 
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
-var _popup = __webpack_require__(1);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Output = function () {
-	function Output(query, settings) {
-		var _this = this;
+var APIObject = function () {
+	function APIObject() {
+		_classCallCheck(this, APIObject);
 
-		_classCallCheck(this, Output);
-
-		var self = this;
-
-		this.list = [];
-
-		document.querySelectorAll(query).forEach(function (element) {
-			_this.list.push(new _popup.InfoPopup(element, settings));
-		});
+		this._objectList = {};
+		this._Output = function (id) {
+			this.listId = [].concat(id);
+		};
 	}
 
-	_createClass(Output, [{
-		key: "show",
-		value: function show(fast) {
-			this.list.forEach(function (item) {
-				return item.show(fast);
-			});
+	_createClass(APIObject, [{
+		key: "add",
+		value: function add(target, id) {
+			if (id === undefined) id = Math.random();
+			this._objectList[id] = target;
+			return id;
 		}
 	}, {
-		key: "hide",
-		value: function hide(fast) {
-			this.list.forEach(function (item) {
-				return item.hide(fast);
-			});
+		key: "remove",
+		value: function remove(id) {
+			delete this._objectList[id];
 		}
 	}, {
-		key: "toggle",
-		value: function toggle(fast) {
-			this.list.forEach(function (item) {
-				return item.toggle(fast);
-			});
+		key: "output",
+		value: function output(id) {
+			return new this._Output(id);
 		}
 	}, {
-		key: "getElementBy",
-		value: function getElementBy(query) {}
+		key: "_evoke",
+		value: function _evoke(target, method, args) {
+			var _this = this;
+
+			var result = [];
+
+			target.listId.forEach(function (id) {
+
+				var value = void 0,
+				    obj = _this._objectList[id];
+
+				if (obj && typeof obj[method] == "function") value = obj[method].apply(obj, args);
+
+				if (value !== undefined) result.push(value);
+			});
+
+			return result.length == 1 ? result[0] : result;
+		}
+	}, {
+		key: "setMethods",
+		value: function setMethods(methods) {
+			var _this2 = this;
+
+			var self = this;
+
+			methods.forEach(function (method) {
+				_this2._Output.prototype[method] = function () {
+					return self._evoke(this, method, arguments);
+				};
+			});
+		}
 	}]);
 
-	return Output;
+	return APIObject;
 }();
 
-window.InfoPopup = Output;
-
-var out = new Output("[data-info-popup]");
+var API = exports.API = new APIObject();
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _api = __webpack_require__(0);
+
+var _popup = __webpack_require__(2);
+
+_api.API.setMethods(["show", "hide", "toggle", "setSide", "setAlign", "destroy"]);
+
+function build(query, settings) {
+	var list = [];
+
+	document.querySelectorAll(query).forEach(function (element) {
+		var popup = new _popup.InfoPopup(element, settings);
+		list.push(popup.id);
+	});
+
+	return _api.API.output(list);
+}
+
+build.getById = function (id) {
+	return _api.API.output(id);
+};
+
+window.infoPopup = build;
+
+build("[data-infopopup]");
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -138,13 +190,18 @@ exports.InfoPopup = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _functions = __webpack_require__(2);
+var _functions = __webpack_require__(3);
 
 var func = _interopRequireWildcard(_functions);
+
+var _api = __webpack_require__(0);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var sides = ["top", "bottom", "left", "right"],
+    aligns = ["begin", "middle", "end"];
 
 var defaults = {
 	type: "hover",
@@ -157,7 +214,7 @@ var defaults = {
 	hideDelay: 0,
 	hideOnOver: false,
 	closeButton: false,
-	closeText: "x",
+	closeText: "",
 	scrollSense: false,
 	className: null,
 	onShow: null,
@@ -186,6 +243,9 @@ var InfoPopup = exports.InfoPopup = function () {
 
 		this.target = target;
 
+		// add to API
+		this.id = _api.API.add(this, target.id);
+
 		func.getSettings(settings, defaults, attributes, target);
 
 		this.speed = settings.speed;
@@ -198,25 +258,29 @@ var InfoPopup = exports.InfoPopup = function () {
 		this._create(settings);
 		this._listenEvents(settings);
 
+		this.setSide(settings.side);
+		this.setAlign(settings.align);
+
 		this.onShow = func.getCallBack(settings.onShow);
 		this.onHide = func.getCallBack(settings.onHide);
 		this.onReady = func.getCallBack(settings.onReady);
 
-		if (this.onReady) this.onReady();
+		if (this.onReady) this.onReady(_api.API.output(this.id));
 	}
 
 	_createClass(InfoPopup, [{
-		key: "_create",
+		key: '_create',
 		value: function _create(settings) {
 			var self = this;
 
-			this.wrapper = func.createElement("div", "info-popup-wrapper");
-			this.wrapper.innerHTML = settings.content;
+			this.wrapper = func.createElement("div", "info-popup", {
+				display: "none",
+				position: "fixed",
+				transition: settings.speed + "ms, top 0ms, left 0ms",
+				zIndex: settings.zIndex
+			});
 
-			this.wrapper.style.display = "none";
-			this.wrapper.style.position = "fixed";
-			this.wrapper.style.transition = settings.speed + "ms, top 0ms, left 0ms";
-			this.wrapper.style.zIndex = settings.zIndex;
+			this.wrapper.innerHTML = settings.content;
 
 			if (settings.className) this.wrapper.classList.add(settings.className);
 
@@ -229,11 +293,11 @@ var InfoPopup = exports.InfoPopup = function () {
 			document.body.appendChild(this.wrapper);
 		}
 	}, {
-		key: "_listenEvents",
+		key: '_listenEvents',
 		value: function _listenEvents(settings) {
 			var self = this;
 
-			if (settings.type == "hover") {
+			if (settings.type == "hover" && !func.isTouch()) {
 				this.target.addEventListener("mouseover", function () {
 					self.show();
 				});
@@ -264,7 +328,7 @@ var InfoPopup = exports.InfoPopup = function () {
 			});
 		}
 	}, {
-		key: "_updatePosition",
+		key: '_updatePosition',
 		value: function _updatePosition() {
 			var offsetX = 0,
 			    offsetY = 0,
@@ -296,7 +360,7 @@ var InfoPopup = exports.InfoPopup = function () {
 			this.wrapper.style.left = offsetX + "px";
 		}
 	}, {
-		key: "_align",
+		key: '_align',
 		value: function _align(direction, value, sizeTarget, sizeWrap) {
 			switch (direction) {
 				case "begin":
@@ -310,13 +374,13 @@ var InfoPopup = exports.InfoPopup = function () {
 			return value;
 		}
 	}, {
-		key: "toggle",
+		key: 'toggle',
 		value: function toggle(fast) {
 			this._updatePosition();
 			this.active ? this.hide(fast) : this.show(fast);
 		}
 	}, {
-		key: "show",
+		key: 'show',
 		value: function show(fast) {
 			var _this = this;
 
@@ -329,7 +393,7 @@ var InfoPopup = exports.InfoPopup = function () {
 			}, this.showDelay);else this._show();
 		}
 	}, {
-		key: "_show",
+		key: '_show',
 		value: function _show() {
 			if (this.active) {
 				this.wrapper.style.display = "block";
@@ -343,7 +407,7 @@ var InfoPopup = exports.InfoPopup = function () {
 			}
 		}
 	}, {
-		key: "hide",
+		key: 'hide',
 		value: function hide(fast) {
 			var _this2 = this;
 
@@ -356,7 +420,7 @@ var InfoPopup = exports.InfoPopup = function () {
 			}, this.hideDelay);else this._hide();
 		}
 	}, {
-		key: "_hide",
+		key: '_hide',
 		value: function _hide() {
 			var _this3 = this;
 
@@ -369,7 +433,7 @@ var InfoPopup = exports.InfoPopup = function () {
 			}
 		}
 	}, {
-		key: "_hideElements",
+		key: '_hideElements',
 		value: function _hideElements() {
 			if (!this.active) {
 				this.wrapper.style.display = "none";
@@ -378,13 +442,38 @@ var InfoPopup = exports.InfoPopup = function () {
 				if (this.onHide) this.onHide();
 			}
 		}
+	}, {
+		key: 'destroy',
+		value: function destroy() {
+			_api.API.remove(this.id);
+			document.body.removeChild(this.wrapper);
+			delete this;
+		}
+	}, {
+		key: 'setSide',
+		value: function setSide(side) {
+			if (sides.includes(side)) {
+				this.wrapper.classList.remove(this.side);
+				this.side = side;
+				this.wrapper.classList.add(side);
+			}
+		}
+	}, {
+		key: 'setAlign',
+		value: function setAlign(align) {
+			if (aligns.includes(align)) {
+				this.wrapper.classList.remove(this.align);
+				this.align = align;
+				this.wrapper.classList.add(align);
+			}
+		}
 	}]);
 
 	return InfoPopup;
 }();
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

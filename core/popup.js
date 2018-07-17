@@ -16,7 +16,6 @@ var defaults = {
     hideOnOver  : false,
     closeButton : false,
     closeText   : "",
-    scrollSense : false,
     className   : null,
     onShow      : null,
     onHide      : null,
@@ -29,7 +28,6 @@ var attributes = {
     hideOnOver  : "hide-onover",
     closeButton : "close-button",
     closeText   : "close-text",
-    scrollSense : "scroll-sense",
     className   : "class",
     onShow      : "on-show",
     onHide      : "on-hide",
@@ -78,8 +76,8 @@ export class InfoPopup
 			{
 				display    : "none",
 				position   : "fixed",
-				transition : settings.speed + "ms, top 0ms, left 0ms",
-				zIndex     : settings.zIndex,
+				transition : settings.speed + "ms, top 1ms, left 1ms",
+				zIndex     : settings.zIndex
 			}
 		);
 
@@ -100,9 +98,9 @@ export class InfoPopup
 
 	_listenEvents(settings)
 	{
-		var self = this;
+		var self = this, touch = func.isTouch();
 
-		if (settings.type == "hover" && !func.isTouch())
+		if (settings.type == "hover" && !touch)
 		{
 			this.target.addEventListener("mouseover", function(){
 				self.show();
@@ -121,7 +119,7 @@ export class InfoPopup
 				self.hide();
 			})
 		}
-		else if (settings.type == "click")
+		else if (settings.type == "click" || touch)
 		{
 			this.target.addEventListener("click", function(){
 				self.toggle();
@@ -131,12 +129,11 @@ export class InfoPopup
 				this.closeButton.onclick = function(){
 					self.hide(true);
 				};
-		}
 
-		if (settings.scrollSense)
-			window.addEventListener("scroll", function(){
+			window.addEventListener("scroll", function(e){
 				if (self.active) self._updatePosition();
-			});
+			})
+		}
 	}
 
 	_updatePosition()
@@ -147,22 +144,22 @@ export class InfoPopup
 		switch (this.side)
 		{
 			case "top" :
-				offsetX = this._align(this.align, rect.x, rect.width, this.wrapper.offsetWidth);
+				offsetX = this._align(this.align, rect.left, rect.width, this.wrapper.offsetWidth);
 				offsetY = rect.top - this.wrapper.offsetHeight;
 				break;
 
 			case "bottom" :
-				offsetX = this._align(this.align, rect.x, rect.width, this.wrapper.offsetWidth);
+				offsetX = this._align(this.align, rect.left, rect.width, this.wrapper.offsetWidth);
 				offsetY = rect.bottom;
 				break;
 
 			case "left" :
-				offsetY = this._align(this.align, rect.y, rect.height, this.wrapper.offsetHeight);
+				offsetY = this._align(this.align, rect.top, rect.height, this.wrapper.offsetHeight);
 				offsetX = rect.left - this.wrapper.offsetWidth;
 				break;
 
 			case "right" :
-				offsetY = this._align(this.align, rect.y, rect.height, this.wrapper.offsetHeight);
+				offsetY = this._align(this.align, rect.top, rect.height, this.wrapper.offsetHeight);
 				offsetX = rect.right;
 				break;
 		}
@@ -260,7 +257,7 @@ export class InfoPopup
 
 	setSide(side)
 	{
-		if (sides.includes(side))
+		if (sides.indexOf(side) != -1)
 		{
 			this.wrapper.classList.remove(this.side);
 			this.side = side;
@@ -270,7 +267,7 @@ export class InfoPopup
 
 	setAlign(align)
 	{
-		if (aligns.includes(align))
+		if (aligns.indexOf(align) != -1)
 		{
 			this.wrapper.classList.remove(this.align);
 			this.align = align;

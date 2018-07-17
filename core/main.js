@@ -12,12 +12,15 @@ API.setMethods([
 
 function build(query, settings)
 {
-	var list = [];
+	var list = [],
+		elements = document.querySelectorAll(query);
 
-	document.querySelectorAll(query).forEach((element) =>{
-		var popup = new InfoPopup(element, settings);
+	// IE supporting
+	for (var i = 0; i < elements.length; i++)
+	{
+		let popup = new InfoPopup(elements[i], settings);
 		list.push(popup.id);
-	});
+	}
 
 	return API.output(list)
 }

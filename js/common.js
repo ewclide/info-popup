@@ -8,6 +8,6 @@ var popup = infoPopup("[data-popup]", {
 	}
 });
 
-infoPopup.getById("attention_2").setSide("top");
+// infoPopup.getById("attention_2").setSide("top");
 
 // infoPopup.getById("attention_2").destroy();

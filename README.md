@@ -23,7 +23,6 @@ Allows to show popup tips
 | hideOnOver  | data-hide-onover  | hides popup when mouse leave the anchor element    | false    |
 | closeButton | data-close-button | enables close button                               | false    |
 | closeText   | data-close-text   | sets text content to the close button              | none     |
-| scrollSense | data-scroll-sense | updates position of the popup when window scroll   | false    |
 | className   | data-class        | sets user class to the popup wrapper               | none     |
 | onShow      | data-on-show      | function wich trigged when show the popup          | none     |
 | onHide      | data-on-hide      | function wich trigged when hide the popup          | none     |
@@ -73,7 +72,7 @@ infoPopup.getById("temp").destroy();
 ### Examples
 
 ```html
-	<div data-info-popup data-content="Attention! its important information!"
+	<div data-infopopup data-content="Attention! its important information!"
 	></div>
 	<script src="js/infopopup/infopopup.min.js"></script>
 	<script src="js/common.js"></script>

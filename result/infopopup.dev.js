@@ -158,12 +158,14 @@ var _popup = __webpack_require__(2);
 _api.API.setMethods(["show", "hide", "toggle", "setSide", "setAlign", "destroy"]);
 
 function build(query, settings) {
-	var list = [];
+	var list = [],
+	    elements = document.querySelectorAll(query);
 
-	document.querySelectorAll(query).forEach(function (element) {
-		var popup = new _popup.InfoPopup(element, settings);
+	// IE supporting
+	for (var i = 0; i < elements.length; i++) {
+		var popup = new _popup.InfoPopup(elements[i], settings);
 		list.push(popup.id);
-	});
+	}
 
 	return _api.API.output(list);
 }
@@ -215,7 +217,6 @@ var defaults = {
 	hideOnOver: false,
 	closeButton: false,
 	closeText: "",
-	scrollSense: false,
 	className: null,
 	onShow: null,
 	onHide: null,
@@ -228,7 +229,6 @@ var attributes = {
 	hideOnOver: "hide-onover",
 	closeButton: "close-button",
 	closeText: "close-text",
-	scrollSense: "scroll-sense",
 	className: "class",
 	onShow: "on-show",
 	onHide: "on-hide",
@@ -276,7 +276,7 @@ var InfoPopup = exports.InfoPopup = function () {
 			this.wrapper = func.createElement("div", "info-popup", {
 				display: "none",
 				position: "fixed",
-				transition: settings.speed + "ms, top 0ms, left 0ms",
+				transition: settings.speed + "ms, top 1ms, left 1ms",
 				zIndex: settings.zIndex
 			});
 
@@ -295,9 +295,10 @@ var InfoPopup = exports.InfoPopup = function () {
 	}, {
 		key: '_listenEvents',
 		value: function _listenEvents(settings) {
-			var self = this;
+			var self = this,
+			    touch = func.isTouch();
 
-			if (settings.type == "hover" && !func.isTouch()) {
+			if (settings.type == "hover" && !touch) {
 				this.target.addEventListener("mouseover", function () {
 					self.show();
 				});
@@ -313,7 +314,7 @@ var InfoPopup = exports.InfoPopup = function () {
 				this.wrapper.addEventListener("mouseleave", function () {
 					self.hide();
 				});
-			} else if (settings.type == "click") {
+			} else if (settings.type == "click" || touch) {
 				this.target.addEventListener("click", function () {
 					self.toggle();
 				});
@@ -321,11 +322,11 @@ var InfoPopup = exports.InfoPopup = function () {
 				if (this.closeButton) this.closeButton.onclick = function () {
 					self.hide(true);
 				};
-			}
 
-			if (settings.scrollSense) window.addEventListener("scroll", function () {
-				if (self.active) self._updatePosition();
-			});
+				window.addEventListener("scroll", function (e) {
+					if (self.active) self._updatePosition();
+				});
+			}
 		}
 	}, {
 		key: '_updatePosition',
@@ -336,22 +337,22 @@ var InfoPopup = exports.InfoPopup = function () {
 
 			switch (this.side) {
 				case "top":
-					offsetX = this._align(this.align, rect.x, rect.width, this.wrapper.offsetWidth);
+					offsetX = this._align(this.align, rect.left, rect.width, this.wrapper.offsetWidth);
 					offsetY = rect.top - this.wrapper.offsetHeight;
 					break;
 
 				case "bottom":
-					offsetX = this._align(this.align, rect.x, rect.width, this.wrapper.offsetWidth);
+					offsetX = this._align(this.align, rect.left, rect.width, this.wrapper.offsetWidth);
 					offsetY = rect.bottom;
 					break;
 
 				case "left":
-					offsetY = this._align(this.align, rect.y, rect.height, this.wrapper.offsetHeight);
+					offsetY = this._align(this.align, rect.top, rect.height, this.wrapper.offsetHeight);
 					offsetX = rect.left - this.wrapper.offsetWidth;
 					break;
 
 				case "right":
-					offsetY = this._align(this.align, rect.y, rect.height, this.wrapper.offsetHeight);
+					offsetY = this._align(this.align, rect.top, rect.height, this.wrapper.offsetHeight);
 					offsetX = rect.right;
 					break;
 			}
@@ -452,7 +453,7 @@ var InfoPopup = exports.InfoPopup = function () {
 	}, {
 		key: 'setSide',
 		value: function setSide(side) {
-			if (sides.includes(side)) {
+			if (sides.indexOf(side) != -1) {
 				this.wrapper.classList.remove(this.side);
 				this.side = side;
 				this.wrapper.classList.add(side);
@@ -461,7 +462,7 @@ var InfoPopup = exports.InfoPopup = function () {
 	}, {
 		key: 'setAlign',
 		value: function setAlign(align) {
-			if (aligns.includes(align)) {
+			if (aligns.indexOf(align) != -1) {
 				this.wrapper.classList.remove(this.align);
 				this.align = align;
 				this.wrapper.classList.add(align);

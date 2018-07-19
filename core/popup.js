@@ -75,8 +75,8 @@ export class InfoPopup
 			"info-popup",
 			{
 				display    : "none",
-				position   : "fixed",
-				transition : settings.speed + "ms, top 1ms, left 1ms",
+				position   : "absolute",
+				transition : settings.speed + "ms",
 				zIndex     : settings.zIndex
 			}
 		);
@@ -129,43 +129,62 @@ export class InfoPopup
 				this.closeButton.onclick = function(){
 					self.hide(true);
 				};
-
-			window.addEventListener("scroll", function(e){
-				if (self.active) self._updatePosition();
-			})
 		}
 	}
 
 	_updatePosition()
 	{
 		var offsetX = 0, offsetY = 0,
-			rect = this.target.getBoundingClientRect();
+			offset = this._getOffset();
 
 		switch (this.side)
 		{
 			case "top" :
-				offsetX = this._align(this.align, rect.left, rect.width, this.wrapper.offsetWidth);
-				offsetY = rect.top - this.wrapper.offsetHeight;
+				offsetX = this._align(this.align, offset.left, this.target.offsetWidth, this.wrapper.offsetWidth);
+				offsetY = offset.top - this.wrapper.offsetHeight;
 				break;
 
 			case "bottom" :
-				offsetX = this._align(this.align, rect.left, rect.width, this.wrapper.offsetWidth);
-				offsetY = rect.bottom;
+				offsetX = this._align(this.align, offset.left, this.target.offsetWidth, this.wrapper.offsetWidth);
+				offsetY = offset.bottom;
 				break;
 
 			case "left" :
-				offsetY = this._align(this.align, rect.top, rect.height, this.wrapper.offsetHeight);
-				offsetX = rect.left - this.wrapper.offsetWidth;
+				offsetY = this._align(this.align, offset.top, this.target.offsetHeight, this.wrapper.offsetHeight);
+				offsetX = offset.left - this.wrapper.offsetWidth;
 				break;
 
 			case "right" :
-				offsetY = this._align(this.align, rect.top, rect.height, this.wrapper.offsetHeight);
-				offsetX = rect.right;
+				offsetY = this._align(this.align, offset.top, this.target.offsetHeight, this.wrapper.offsetHeight);
+				offsetX = offset.right;
 				break;
 		}
 
 		this.wrapper.style.top = offsetY + "px";
 		this.wrapper.style.left = offsetX + "px";
+	}
+
+	_getOffset()
+	{
+		var rect = this.target.getBoundingClientRect(),
+			body = document.body,
+			doc = document.documentElement;
+	    
+	    var scrollTop = window.pageYOffset || doc.scrollTop || body.scrollTop,
+	    	scrollLeft = window.pageXOffset || doc.scrollLeft || body.scrollLeft;
+	    
+	    var clientTop = doc.clientTop || body.clientTop || 0,
+	    	clientLeft = doc.clientLeft || body.clientLeft || 0;
+
+	    var top = rect.top + scrollTop - clientTop,
+	    	left = rect.left + scrollLeft - clientLeft;
+	    
+	    return {
+	    	top   : Math.round(top),
+	    	left  : Math.round(left),
+	    	bottom: Math.round(top + this.target.offsetHeight),
+	    	right : Math.round(left + this.target.offsetWidth)
+	    }
 	}
 
 	_align(direction, value, sizeTarget, sizeWrap)
